@@ -12,8 +12,9 @@ gauss scale = do
     x2 <- randomIO
     return $ scale * LM.boxMuller x1 x2
 
-makeLayer :: Int -> IO Layer
-makeLayer x = fmap Layer $ replicateM x $ fmap (Neuron 1.0) $ replicateM x (gauss 0.01)
+-- Generates a layer of ncur neurons, with each having nprev random input weights
+makeLayer :: Int -> Int -> IO Layer
+makeLayer nprev ncur = fmap Layer $ replicateM ncur $ fmap (Neuron 1.0) $ replicateM nprev (gauss 0.01)
 
 makeBrain :: [Int] -> IO Brain
-makeBrain ints = fmap Brain $ fmap tail $ mapM makeLayer (1:ints)
+makeBrain ints = fmap Brain $ zipWithM makeLayer (1:ints) ints
