@@ -1,0 +1,2 @@
+# heural
+Haskell neural network
