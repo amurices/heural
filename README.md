@@ -1,2 +1,2 @@
 # heural
-Haskell neural network
+Haskell ***toy*** neural network
