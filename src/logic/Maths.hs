@@ -21,3 +21,11 @@ vectorLength = sqrt . sum . map (^2)
 -- Activations here refer to the output of the brain
 quadratic :: [Float] -> [Float] -> Float
 quadratic activations ys = (^2) . vectorLength . zipWith (-) activations $ ys
+
+-- We use the derivative of the cost function to see how a particular
+-- node's activation changes in comparison to some desired output. This is why
+-- we're only interested in one activation value and one Y; in the code, these
+-- will be compared with the Y activation belonging to some "ideal" execution of the network
+-- i.e. one that gives the desired output.
+quadratic' :: Float -> Float -> Float
+quadratic' activation y = activation - y

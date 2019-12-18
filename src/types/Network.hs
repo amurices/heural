@@ -34,4 +34,4 @@ instance Show Output where
   show (Output x) = concatMap (\layerOutput ->
     concatMap (\neuronOutput ->
       printf "Activ: %.4f" (fst neuronOutput) ++ ", " ++ 
-      "ws: " ++ printWeights (snd neuronOutput))) x
+      "ws: " ++ printWeights (snd neuronOutput) ++ "\n") layerOutput ++ "\n") x
