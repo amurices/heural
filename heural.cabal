@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 38c39059aa45a81ef8597040cb7e10cf73edbd0bb08498cf61eaccc5a4776c80
+-- hash: 53903c02d0f724c519839d59df6a7c51b00f23ccefbeaa1e61bce50d477f1877
 
 name:           heural
 version:        0.1.0.0
@@ -27,11 +27,7 @@ source-repository head
 
 library
   exposed-modules:
-      IO.Network
       Lib
-      Logic.Maths
-      Logic.Network
-      Types.Network
   other-modules:
       Paths_heural
   hs-source-dirs:
