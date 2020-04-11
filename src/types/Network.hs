@@ -2,11 +2,11 @@ module Types.Network where
 
 import Text.Printf
 
-type Bias = Float
-type Weight = Float
+type Bias = Double
+type Weight = Double
 
 printWeights :: [Weight] -> String
-printWeights ws = concatMap (\weight -> printf "%.3f " weight) ws
+printWeights = concatMap (printf "%.3f ")
 
 data Neuron = Neuron {bias :: Bias, weights :: [Weight]}
 instance Show Neuron where
@@ -22,14 +22,14 @@ fromLayer :: Layer -> [Neuron]
 fromLayer (Layer x) = x
 
 toLayer :: [Neuron] -> Layer
-toLayer x = Layer x
+toLayer = Layer
 
 newtype Brain = Brain [Layer]
 instance Show Brain where
   show (Brain x) = concat $ zipWith printCounterAndLayer [1..] x
     where printCounterAndLayer c layer = printf "Layer %d: \n" (c :: Int) ++ show layer ++ "XXXX\nXXXX\n"
 
-newtype Output = Output [[(Float, [Weight])]]
+newtype Output = Output [[(Double, [Weight])]]
 instance Show Output where
   show (Output x) = concatMap (\layerOutput ->
     concatMap (\neuronOutput ->
