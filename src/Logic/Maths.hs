@@ -1,4 +1,8 @@
-module Logic.Maths where
+module Logic.Maths 
+       (sigmoid,
+        sigmoid',
+        quadratic',
+        boxMuller) where
 
 sigmoid :: Floating a => a -> a
 sigmoid x = 1 / (1 + exp (-x))
@@ -16,11 +20,11 @@ boxMuller x1 x2 = sqrt (-2 * log x1) * cos (2 * pi * x2)
 
 -- This will be squared after which makes sqrt pointless, but it is what it is :actualshrug:
 vectorLength :: Floating a => [a] -> a
-vectorLength = sqrt . sum . map (^2)
+vectorLength = sqrt . sum . map (**2)
 
 -- Activations here refer to the output of the brain
 quadratic :: Floating a => [a] -> [a] -> a
-quadratic activations = (^2) . vectorLength . zipWith (-) activations
+quadratic activations = (**2) . vectorLength . zipWith (-) activations
 
 -- We use the derivative of the cost function to see how a particular
 -- node's activation changes in comparison to some desired output. This is why
@@ -29,3 +33,7 @@ quadratic activations = (^2) . vectorLength . zipWith (-) activations
 -- i.e. one that gives the desired output.
 quadratic' :: Floating a => a -> a -> a
 quadratic' activation y = activation - y
+
+-- For tests: 
+-- vectorLength [-4, -12, 2] ==> 12.806248
+-- quadratic [2, -5, 4] [6, 7, 2] ==> 164

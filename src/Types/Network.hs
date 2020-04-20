@@ -4,8 +4,8 @@ import Text.Printf
 
 type Bias = Double
 
-data Neuron = Neuron {bias :: Bias, inEdges :: [Double]}
+data Neuron = Neuron {bias :: Bias, inWeights :: [Double]}
   deriving (Eq)
 
 instance Show Neuron where
-  show (Neuron b ws) = printf "b: %.3f " b ++ "ws: " ++  concatMap ((" " ++) . printf "%.2f") ws
+  show (Neuron b ws) = printf "b: %.1f " b ++ "i:" ++  concatMap ((" " ++) . printf "%.2f") ws ++ "\n"

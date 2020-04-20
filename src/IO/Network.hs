@@ -8,9 +8,9 @@ import Logic.Network
 
 gauss :: Double -> IO Double
 gauss scale = do
-    x1 <- randomIO
-    x2 <- randomIO
-    return $ scale * LM.boxMuller x1 x2
+  x1 <- randomIO
+  x2 <- randomIO
+  return $ scale * LM.boxMuller x1 x2
 
 -- Generates a layer of ncur neurons, with each having nprev random input Doubles
 makeLayer :: Int -> Int -> IO [Neuron]
