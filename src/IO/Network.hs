@@ -3,7 +3,7 @@ module IO.Network where
 import System.Random
 import Control.Monad
 import qualified Logic.Maths as LM
-import Types.Network
+import Types.Network (Neuron(..))
 import Logic.Network
 
 gauss :: Double -> IO Double
@@ -17,4 +17,4 @@ makeLayer :: Int -> Int -> IO [Neuron]
 makeLayer nprev ncur = replicateM ncur $ Neuron 1.0 <$> replicateM nprev (gauss 0.01)
 
 makeBrain :: [Int] -> IO [[Neuron]]
-makeBrain ints = zipWithM makeLayer (1:ints) ints
+makeBrain ints = tail <$> zipWithM makeLayer (1:ints) ints
