@@ -1,8 +1,10 @@
 module Logic.Network 
-       (feedNeuron,
+       (weightInputs,
+        feedNeuron,
         feedLayer,
         feedBrain,
         backpropagate,
+        errorLast,
         learn)
        where
 
@@ -58,7 +60,7 @@ backpropagate outputError activations brain = let
 learnNeuron :: Double -> Neuron -> Double -> Activation -> Neuron
 learnNeuron eta (Neuron b iw) e act = Neuron b' iw'
   where b'  =  b - eta * e
-        iw' = map (\w -> w - eta * w * e) iw
+        iw' = map (* (1 - eta * e)) iw
 
 learn :: [[Neuron]] -> [Double] -> [Double] -> [[Neuron]]
 learn brain input desired = let

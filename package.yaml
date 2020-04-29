@@ -23,6 +23,9 @@ dependencies:
 - base >= 4.7 && < 5
 - random
 - pretty-simple
+- tasty
+- tasty-hunit
+- tasty-quickcheck
 
 library:
   source-dirs: src

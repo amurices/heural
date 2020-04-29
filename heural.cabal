@@ -4,13 +4,13 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a417d68925a8fbe98c7be6ad6f8fd9a8502ac8abb339d1d1e2620349efd12f5b
+-- hash: cc64388797b25289798044d355e26cd346266f45717e2b942e18cbab0865fdcc
 
 name:           heural
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/amurices/heural#readme>
-homepage:       https://github.com/amurices/heural#readme
-bug-reports:    https://github.com/amurices/heural/issues
+homepage:       https://github.com/amuricys/heural#readme
+bug-reports:    https://github.com/amuricys/heural/issues
 author:         André Muricy
 maintainer:     decomuricy@gmail.com
 copyright:      2020 André Muricy
@@ -23,7 +23,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/amurices/heural
+  location: https://github.com/amuricys/heural
 
 library
   exposed-modules:
@@ -41,6 +41,9 @@ library
       base >=4.7 && <5
     , pretty-simple
     , random
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
   default-language: Haskell2010
 
 executable heural-exe
@@ -55,12 +58,17 @@ executable heural-exe
     , heural
     , pretty-simple
     , random
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
   default-language: Haskell2010
 
 test-suite heural-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      MathsTest
+      NetworkTest
       Paths_heural
   hs-source-dirs:
       test
@@ -70,4 +78,7 @@ test-suite heural-test
     , heural
     , pretty-simple
     , random
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
   default-language: Haskell2010
