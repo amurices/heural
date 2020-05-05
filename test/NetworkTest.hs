@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module NetworkTest where
 
 import Test.Tasty
@@ -5,7 +7,9 @@ import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
 
 import Types.Network
-import qualified Logic.Network as L.Network
+import Logic.Network as L.Network
+import IO.Network
+import Control.Monad
 
 ourBrain :: [[Neuron]]
 ourBrain = [[Neuron 1.0 [0.2,0.3,0.4],
@@ -37,28 +41,29 @@ bigLogicTests = testGroup "Big, \"controller-like\" logic"
     (last . L.Network.feedBrain [1,1,1]) ourBrain @?= [Activation {activation = 0.998969150393322, weightedInput = 6.8763405746014925}, Activation {activation = 0.9997724097287007, weightedInput = 8.387735985182916}]
   ]
 
-instance Arbitrary Neuron where
-  arbitrary = QC.applyArbitrary2 Neuron
+{- Property based tests reveal some improvements that could be made:
+   1. Make sigmoid learning more reliable, possibly with batching?
+   2. Should be easier to switch activation functions. Maybe passing around in parameter from beginning, or include in neuron data structure (bleh) 
+   3. In fact, using relu makes the property tests *much* more reliable. The desired output can even be completely random and it guarantees a better result always. -}
+instance {-# OVERLAPPING #-} Arbitrary [[Neuron]] where
+  arbitrary = do 
+    layerSizes <- map ((+1) . abs) <$> QC.listOf1 QC.arbitrarySizedIntegral -- to guarantee positive integers
+    IO.Network.makeBrain (abs <$> arbitrarySizedFractional) (fmap (abs <$>) (Right arbitrarySizedFractional)) layerSizes
 
 propertyTests :: TestTree
 propertyTests = testGroup "Network learns"
   [ QC.testProperty "learned brain should classify better no matter what" $
     \brain input desired ->
-        not (null brain) && -- TODO: How to do this in the type level?
-        all (not . null) brain && 
-        all (\layer -> all (\neuron -> not . null . inWeights $ neuron) layer) brain &&
-        not (null input) &&
-        not (null desired) && 
-        length desired == length (last brain)
+        length brain >= 2 && 
+        length input >= length (inWeights $ head $ head brain) && 
+        length desired >= length (last brain)
         QC.==>
-        let acts        = (last . L.Network.feedBrain input) brain
+        let 
+            acts        = (last . L.Network.feedBrain input) brain
             err         = L.Network.errorLast acts desired
             learned     = L.Network.learn brain input desired
             actsLearned = (last . L.Network.feedBrain input) learned
             errLearned  = L.Network.errorLast actsLearned desired
             in
                 abs (foldl (+) 0.0 errLearned) < abs (foldl (+) 0.0 err)
-
   ]
--- TODO: What's best way to implement passing around different activation functions? For example with relu:
--- (last . L.Network.feedBrain relu [1,1,1]) ourBrain @?= [Activation {activation = 21.6, weightedInput = 21.6}, Activation {activation = 26.8, weightedInput = 26.8}]

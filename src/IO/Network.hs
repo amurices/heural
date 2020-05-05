@@ -13,8 +13,10 @@ gauss scale = do
   return $ scale * LM.boxMuller x1 x2
 
 -- Generates a layer of ncur neurons, with each having nprev random input Doubles
-makeLayer :: Int -> Int -> IO [Neuron]
-makeLayer nprev ncur = replicateM ncur $ Neuron 1.0 <$> replicateM nprev (gauss 0.01)
+makeLayer :: (Monad m) => m Double -> Either Double (m Double) -> Int -> Int -> m [Neuron]
+makeLayer gen bias nprev ncur = replicateM ncur biasedNeuron
+  where biasedNeuron = case bias of Right x -> Neuron <$> x <*> replicateM nprev gen
+                                    Left x  -> Neuron     x <$> replicateM nprev gen
 
-makeBrain :: [Int] -> IO [[Neuron]]
-makeBrain ints = tail <$> zipWithM makeLayer (1:ints) ints
+makeBrain :: (Monad m) => m Double -> Either Double (m Double) -> [Int] -> m [[Neuron]]
+makeBrain gen biasGen ints = tail <$> zipWithM (makeLayer gen biasGen) (1:ints) ints

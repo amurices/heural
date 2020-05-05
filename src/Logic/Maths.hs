@@ -1,17 +1,32 @@
 module Logic.Maths 
-       (sigmoid,
-        sigmoid',
+       (activationFn,
+        activationFn',
         quadratic',
+        quadratic,
+        vectorLength,
         boxMuller) where
 
-sigmoid :: Floating a => a -> a
+relu :: (Floating a, Ord a) => a -> a
+relu = max 0
+
+relu' :: (Floating a, Ord a) => a -> a
+relu' x | x < 0     = 0
+        | otherwise = 1
+
+sigmoid :: (Floating a, Ord a) => a -> a
 sigmoid x = 1 / (1 + exp (-x))
 
 -- (d/dx) sig(x) = sig(x)(1 - sig(x)) :shrug:
-sigmoid' :: Floating a => a -> a
+sigmoid' :: (Floating a, Ord a) => a -> a
 sigmoid' x =
   let s   = sigmoid x in
       s * (1 - s)
+
+activationFn :: (Floating a, Ord a) => a -> a
+activationFn = relu
+
+activationFn' :: (Floating a, Ord a) => a -> a
+activationFn' = relu'
 
 -- This is an implementation of the Box-Muller transform i think. I dunno if this plus
 -- the impure part is actually what makes it up :shrug: 

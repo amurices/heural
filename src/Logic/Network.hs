@@ -20,7 +20,7 @@ weightInputs acts n = (bias n + ) . sum . zipWith (\a i -> activation a * i) act
 feedNeuron :: [Activation] -> Neuron -> Activation
 feedNeuron inp n = 
   let weightedInput = weightInputs inp n
-      activation    = sigmoid weightedInput in
+      activation    = activationFn weightedInput in
         Activation activation weightedInput
 
 -- |Given a list of activation (which will in practice be the previous layer's activations), produces activation for a list of neurons.
@@ -37,7 +37,9 @@ a `hadamard` b = zipWith (*) a b
 
 -- Error for the output layer: Needs ys
 errorLast :: [Activation] -> [Double] -> [Double]
-errorLast acts desired = zipWith quadratic' (weightedInput <$> acts) desired
+errorLast acts desired = zipWith (*) dCosted dActivated
+  where dCosted = zipWith quadratic' (activation <$> acts) desired
+        dActivated = map activationFn' (weightedInput <$> acts)
 
 -- Error for a layer L given error for L+1
 errorL :: [Double] -> [Neuron] -> [Activation] -> [Double]
@@ -45,7 +47,7 @@ errorL errorsPlus1 neuronsPlus1 acts =
   let ithForEachNeuron ns i = map ((!! i) . inWeights) ns
       toMult                = map (ithForEachNeuron neuronsPlus1) [0..length acts - 1] 
       firstThing            = map (sum . zipWith (*) errorsPlus1) toMult -- this and the above are to do a weight matrix multiplication
-      secondThing           = sigmoid' . weightedInput <$> acts in
+      secondThing           = activationFn' . weightedInput <$> acts in
   firstThing `hadamard` secondThing
 
 -- given initial error, activations and a brain, return errors for all neurons
@@ -69,7 +71,6 @@ learn brain input desired = let
   allErrors      = backpropagate outputError allActivations brain
   in
     zipWith3 (zipWith3 (learnNeuron 0.002)) brain allErrors allActivations
-
 
 -- For tests: 
 -- weightInputs [Activation 1.0 _, Activation 2.0 _] Neuron { bias = 0.0, inWeights = [2.0, 3.0] } ==> [2.0,6.0]
