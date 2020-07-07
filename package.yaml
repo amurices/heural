@@ -26,6 +26,8 @@ dependencies:
 - tasty
 - tasty-hunit
 - tasty-quickcheck
+- zlib
+- bytestring
 
 library:
   source-dirs: src
