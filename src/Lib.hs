@@ -2,6 +2,7 @@
 
 module Lib
     ( someFunc
+    , someFuncSingleInput
     , asciiImage
     )
 where
@@ -96,30 +97,31 @@ someFunc = do
     images <- take iterationNumber <$> readAndValidateMNISTImages Nothing
     putStrLn "Input the size of the next layers"
     sizes <- map read . words <$> getLine
-    brain <- makeBrain randomIO (Right randomIO) (length (head images) : sizes)
+    brain <- makeBrain randomIO randomIO (length (head images) : sizes)
     let !evolvedBrain = manyLearns brain (map imageToInput images) (map labelToDesired labels)
     forever $ do
         putStrLn "Mention a training case from 0 to 59999"
         ind <- read <$> getLine
         let image' = imageToInput (images !! ind)
-            label' = labelToDesired (labels !! ind)
-        putStrLn $ "Image of " ++ show ind ++ "th case:\n" ++ asciiImage 28 image'
-        putStrLn $ "Label of " ++ show ind ++ "th case: " ++ show label'
-        nuTap (last $ LN.feedBrain image' evolvedBrain) `seq` putStrLn "o"
+        putStrLn $ show ind ++ "th case is a " ++ show (labels !! ind) ++ ":\n" ++ asciiImage 28 image'
+        nuTap (map activation $ last $ LN.feedBrain image' evolvedBrain) `seq` putStrLn "o"
 
-someFunc2 :: IO ()
-someFunc2 = do
-    randomInputs <- map read . words <$> getLine
-    putStrLn "Input some output numbers"
-    randomOutputs <- map read . words <$> getLine
-    let inputLayerSize = length randomInputs
-    putStrLn "How many inner neurons? type number_in_layer_1 number_in_layer2 etc"
-    restOfBrain <- map read . words <$> getLine
+someFuncSingleInput :: IO ()
+someFuncSingleInput = do
+    labels <- readAndValidateMNISTLabels Nothing
+    images <- readAndValidateMNISTImages Nothing
+    brain <- makeBrain randomIO randomIO [784, 30, 10]
+    putStrLn "Which case to train on?"
+    caseChosen <- read <$> getLine
     putStrLn "iterations?"
     iterationNumber <- read <$> getLine
-    brain <- makeBrain randomIO (Right randomIO) (inputLayerSize:restOfBrain ++ [length randomOutputs])
-    let evolvedBrain = manyLearns brain (replicate iterationNumber (imageToInput randomInputs)) (replicate iterationNumber randomOutputs)
+    let evolvedBrain = 
+          manyLearns brain 
+                     (replicate iterationNumber (imageToInput (images !! caseChosen)))
+                     (replicate iterationNumber (labelToDesired (labels !! caseChosen)))
     forever $ do
-        putStrLn "Input some input numbers"
-        randomInputs <- map read . words <$> getLine
-        nuTap (last $ LN.feedBrain randomInputs evolvedBrain) `seq` putStrLn "o"
+        putStrLn "Mention a training case from 0 to 59999"
+        ind <- read <$> getLine
+        let image' = imageToInput (images !! ind)
+        putStrLn $ show ind ++ "th case is a " ++ show (labels !! ind) ++ ":\n" ++ asciiImage 28 image'
+        nuTap (map activation $ last $ LN.feedBrain image' evolvedBrain) `seq` putStrLn "o"
