@@ -6,17 +6,17 @@ import qualified Logic.Maths as LM
 import Types.Network (Neuron(..))
 import Logic.Network
 
-gauss :: Double -> IO Double
-gauss scale = do
-  x1 <- randomIO
-  x2 <- randomIO
+gauss :: Monad m => Double -> m Double -> m Double
+gauss scale gen = do
+  x1 <- gen
+  x2 <- gen
   return $ scale * LM.boxMuller x1 x2
 
 -- Generates a layer of ncur neurons, with each having nprev random input Doubles
-makeLayer :: (Monad m) => m Double -> Either Double (m Double) -> Int -> Int -> m [Neuron]
+makeLayer :: IO Double -> Either Double (IO Double) -> Int -> Int -> IO [Neuron]
 makeLayer gen bias nprev ncur = replicateM ncur biasedNeuron
   where biasedNeuron = case bias of Right x -> Neuron <$> x <*> replicateM nprev gen
                                     Left x  -> Neuron     x <$> replicateM nprev gen
 
-makeBrain :: (Monad m) => m Double -> Either Double (m Double) -> [Int] -> m [[Neuron]]
-makeBrain gen biasGen ints = tail <$> zipWithM (makeLayer gen biasGen) (1:ints) ints
+makeBrain :: IO Double -> Either Double (IO Double) -> [Int] -> IO [[Neuron]]
+makeBrain gen biasGen ints = tail <$> zipWithM (makeLayer (gauss 0.01 randomIO) (Right (gauss 0.01 randomIO))) (1:ints) ints
