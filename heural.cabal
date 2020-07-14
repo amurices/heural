@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6951a3d7f50ed4828b564fdbe226739c5fb0074d406b35f9652bd0861e24e425
+-- hash: 1ccb062cf626ffd7b6fa5c090f61aee52552eac6e8880bbc4bab4e41c3803e79
 
 name:           heural
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Logic.Network
       Types.Network
       Util
+      VectorPlayground
   other-modules:
       Paths_heural
   hs-source-dirs:
@@ -40,11 +41,14 @@ library
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , fixed-vector
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
     , zlib
   default-language: Haskell2010
 
@@ -58,12 +62,15 @@ executable heural-exe
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , fixed-vector
     , heural
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
     , zlib
   default-language: Haskell2010
 
@@ -80,11 +87,14 @@ test-suite heural-test
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , fixed-vector
     , heural
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
     , zlib
   default-language: Haskell2010

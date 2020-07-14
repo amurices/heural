@@ -28,6 +28,9 @@ dependencies:
 - tasty-quickcheck
 - zlib
 - bytestring
+- vector-sized
+- fixed-vector
+- vector
 
 library:
   source-dirs: src
