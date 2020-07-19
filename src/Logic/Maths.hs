@@ -23,10 +23,10 @@ sigmoid' x =
       s * (1 - s)
 
 activationFn :: (Floating a, Ord a) => a -> a
-activationFn = sigmoid
+activationFn = relu
 
 activationFn' :: (Floating a, Ord a) => a -> a
-activationFn' = sigmoid'
+activationFn' = relu'
 
 -- This is an implementation of the Box-Muller transform i think. I dunno if this plus
 -- the impure part is actually what makes it up :shrug: 

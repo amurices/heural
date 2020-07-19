@@ -29,7 +29,6 @@ dependencies:
 - zlib
 - bytestring
 - vector-sized
-- fixed-vector
 - vector
 
 library:

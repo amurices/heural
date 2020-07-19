@@ -6,7 +6,7 @@ import qualified MathsTest as MT
 import Test.Tasty
 
 tests :: TestTree
-tests = testGroup "Tests" [NT.tests, NT.properties, MT.tests]
+tests = testGroup "Tests" [NT.tests, {- NT.properties, -} MT.tests]
 
 main :: IO ()
 main = defaultMain tests

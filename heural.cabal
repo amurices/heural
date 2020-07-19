@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1ccb062cf626ffd7b6fa5c090f61aee52552eac6e8880bbc4bab4e41c3803e79
+-- hash: c7e4b5896c3c0bcec86ee62c60c78245b6c857f76260c4318f0a7c32246d7cba
 
 name:           heural
 version:        0.1.0.0
@@ -31,9 +31,10 @@ library
       Lib
       Logic.Maths
       Logic.Network
+      SizedVectorPlayground
       Types.Network
+      UnsizedVectorPlayground
       Util
-      VectorPlayground
   other-modules:
       Paths_heural
   hs-source-dirs:
@@ -41,7 +42,6 @@ library
   build-depends:
       base >=4.7 && <5
     , bytestring
-    , fixed-vector
     , pretty-simple
     , random
     , tasty
@@ -62,7 +62,6 @@ executable heural-exe
   build-depends:
       base >=4.7 && <5
     , bytestring
-    , fixed-vector
     , heural
     , pretty-simple
     , random
@@ -87,7 +86,6 @@ test-suite heural-test
   build-depends:
       base >=4.7 && <5
     , bytestring
-    , fixed-vector
     , heural
     , pretty-simple
     , random

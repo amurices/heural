@@ -1,9 +1,16 @@
 module Util 
-  (nuTap) where
+  (nuTap, gauss) where
 
 import Debug.Pretty.Simple
 import Text.Pretty.Simple.Internal.OutputPrinter
 import Text.Pretty.Simple.Internal.Color
+import qualified Logic.Maths as LM
+
+gauss :: Monad m => Double -> m Double -> m Double
+gauss scale gen = do
+  x1 <- gen
+  x2 <- gen
+  return $ scale * LM.boxMuller x1 x2
 
 nuColors :: ColorOptions
 nuColors = 
