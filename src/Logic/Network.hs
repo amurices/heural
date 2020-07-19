@@ -5,7 +5,8 @@ module Logic.Network
         feedBrain,
         backpropagate,
         errorLast,
-        learn)
+        learn,
+        learnMany)
        where
 
 import Data.List
@@ -58,19 +59,27 @@ backpropagate outputError activations brain = let
   in  -- this has to be a "staggered" fold; errorL operates on acts of current layer, but neurons and errors of next layer
     foldl' (\acc (act, n) -> errorL (head acc) n act : acc) [outputError] actsAndBrainRev
 
--- For an  eta, Given a neuron's error and activation, return a learned version of it
-learnNeuron :: Double -> Neuron -> Double -> Activation -> Neuron
-learnNeuron eta (Neuron b iw) e act = Neuron b' iw'
-  where b'  =  b - eta * e
-        iw' = map (* (1 - eta * e)) iw
+-- For an  eta, Given a neuron's error and previous layer's activations, return a learned version of it
+learnNeuron :: Double -> [Activation] -> Neuron -> Double -> Neuron
+learnNeuron eta acts (Neuron b iw) e = Neuron b' iw'
+  where b'  = b - eta * e
+        iw' = zipWith (\x y -> x - (eta * e * activation y)) iw acts
 
 learn :: [[Neuron]] -> [Double] -> [Double] -> [[Neuron]]
 learn brain input desired = let
   allActivations = feedBrain input brain
   outputError    = errorLast (last allActivations) desired 
   allErrors      = backpropagate outputError allActivations brain
+  staggeredActs  = (flip Activation 0.0 <$> input) : allActivations
   in
-    zipWith3 (zipWith3 (learnNeuron 0.002)) brain allErrors allActivations
+    zipWith3 (\layer layerError prevLayerActs -> 
+               zipWith (learnNeuron 0.002 prevLayerActs) layer layerError)
+       brain allErrors staggeredActs
+
+learnMany :: [[Neuron]] -> [[Double]] -> [[Double]] -> [[Neuron]]
+learnMany brain images labels =
+  let twoTogether = zip images labels in
+    foldl' (\evolvingBrain (img, lab) -> learn evolvingBrain img lab) brain twoTogether
 
 -- For tests: 
 -- weightInputs [Activation 1.0 _, Activation 2.0 _] Neuron { bias = 0.0, inWeights = [2.0, 3.0] } ==> [2.0,6.0]

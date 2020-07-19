@@ -26,6 +26,10 @@ dependencies:
 - tasty
 - tasty-hunit
 - tasty-quickcheck
+- zlib
+- bytestring
+- vector-sized
+- vector
 
 library:
   source-dirs: src

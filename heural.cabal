@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cc64388797b25289798044d355e26cd346266f45717e2b942e18cbab0865fdcc
+-- hash: c7e4b5896c3c0bcec86ee62c60c78245b6c857f76260c4318f0a7c32246d7cba
 
 name:           heural
 version:        0.1.0.0
@@ -31,7 +31,9 @@ library
       Lib
       Logic.Maths
       Logic.Network
+      SizedVectorPlayground
       Types.Network
+      UnsizedVectorPlayground
       Util
   other-modules:
       Paths_heural
@@ -39,11 +41,15 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
+    , zlib
   default-language: Haskell2010
 
 executable heural-exe
@@ -55,12 +61,16 @@ executable heural-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , heural
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
+    , zlib
   default-language: Haskell2010
 
 test-suite heural-test
@@ -75,10 +85,14 @@ test-suite heural-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , heural
     , pretty-simple
     , random
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , vector
+    , vector-sized
+    , zlib
   default-language: Haskell2010
