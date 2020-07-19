@@ -1,3 +1,5 @@
+-- TODO: Move this to an example executable
+
 module Lib
     ( someFunc
     )
@@ -8,12 +10,15 @@ import qualified Logic.Network                 as LN
 import           Types.Network(activation)
 import           Control.Monad
 import           System.Random
-import           System.Environment
 import           Codec.Compression.GZip         ( decompress )
 import qualified Data.ByteString.Lazy          as B
 import           Data.List
 import           Util
 import           Text.Printf
+
+splitEvery _ [] = []
+splitEvery n xs = as : splitEvery n bs 
+  where (as, bs) = splitAt n xs
 
 mnistLabelsMagicNumber :: B.ByteString
 mnistLabelsMagicNumber = B.pack [0, 0, 8, 1]
@@ -21,22 +26,17 @@ mnistLabelsMagicNumber = B.pack [0, 0, 8, 1]
 mnistImagesMagicNumber :: B.ByteString
 mnistImagesMagicNumber = B.pack [0, 0, 8, 3]
 
-readAndValidateMNISTLabels :: Int -> IO [Integer]
-readAndValidateMNISTLabels subset = do
+readMNISTLabels :: Int -> IO [Integer]
+readMNISTLabels subset = do
     labels <- decompress
         <$> B.readFile "datasets/mnist/train-labels-idx1-ubyte.gz"
     unless (mnistLabelsMagicNumber `B.isPrefixOf` labels)
         $ error "wrong magic number; this isn't MNIST labels"
     pure . take subset . map fromIntegral . B.unpack . B.drop 8 $ labels
 
-splitEvery :: Int -> [a] -> [[a]]
-splitEvery _ [] = []
-splitEvery n xs = as : splitEvery n bs 
-  where (as, bs) = splitAt n xs
-
--- |Each list will have dimension0 * dimension1 elements
-readAndValidateMNISTImages :: Int -> IO [[Integer]]
-readAndValidateMNISTImages subset = do
+-- Each list will have dimension0 * dimension1 elements
+readMNISTImages :: Int -> IO [[Integer]]
+readMNISTImages subset = do
     images <- decompress <$> B.readFile "datasets/mnist/train-images-idx3-ubyte.gz"
     unless (mnistImagesMagicNumber `B.isPrefixOf` images)
         $ error "wrong magic number; this isn't MNIST images"
@@ -68,13 +68,13 @@ someFunc :: IO ()
 someFunc = do
     putStrLn "How many cases to test on?"
     numCases <- read <$> getLine
-    labels <- readAndValidateMNISTLabels numCases
-    images <- readAndValidateMNISTImages numCases
-    let inputLayerSize  = length (head images) 
-        outputLayerSize = 10
-    putStrLn $ printf "Network'll look like this: %d,_,_,...,_,%d\nInput the size of layers" inputLayerSize outputLayerSize
-    sizes <- map read . words <$> getLine
-    brain <- makeLayers randomIO (length (head images) : sizes ++ [outputLayerSize])
+    labels <- readMNISTLabels numCases
+    images <- readMNISTImages numCases
+    let inLayerSize  = length (head images) 
+        outLayerSize = 10
+    putStrLn $ printf "Network'll look like this: %d,_,_,...,_,%d\nWhat should be the sizes of middle layers?" inLayerSize outLayerSize
+    layerSizes <- (++ [outLayerSize]) . (inLayerSize : ) . map read . words <$> getLine
+    brain <- makeLayers randomIO layerSizes
     let evolvedBrain = LN.learnMany brain (map imageToInput images) (map labelToDesired labels)
     forever $ do
         putStrLn $ "Mention a training case from 0 to " ++ show (numCases-1)

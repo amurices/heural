@@ -51,7 +51,7 @@ errorL errorsPlus1 neuronsPlus1 acts =
       secondThing           = activationFn' . weightedInput <$> acts in
   firstThing `hadamard` secondThing
 
--- given initial error, activations and a brain, return errors for all neurons
+-- |Given output error, activations and a brain, return errors for all neurons
 backpropagate :: [Double] -> [[Activation]] -> [[Neuron]] -> [[Double]]
 backpropagate outputError activations brain = let
   staggeredActs   = tail $ reverse activations
@@ -59,7 +59,7 @@ backpropagate outputError activations brain = let
   in  -- this has to be a "staggered" fold; errorL operates on acts of current layer, but neurons and errors of next layer
     foldl' (\acc (act, n) -> errorL (head acc) n act : acc) [outputError] actsAndBrainRev
 
--- For an  eta, Given a neuron's error and previous layer's activations, return a learned version of it
+-- |For an  eta, Given a neuron's error and previous layer's activations, return a learned version of it
 learnNeuron :: Double -> [Activation] -> Neuron -> Double -> Neuron
 learnNeuron eta acts (Neuron b iw) e = Neuron b' iw'
   where b'  = b - eta * e
