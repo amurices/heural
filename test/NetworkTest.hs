@@ -65,7 +65,7 @@ bigLogicTests = testGroup "Big, \"controller-like\" logic"
 -- instance {-# OVERLAPPING #-} Arbitrary [[Neuron]] where
 --   arbitrary = do 
 --     layerSizes <- map ((+1) . abs) <$> QC.listOf1 QC.arbitrarySizedIntegral -- to guarantee positive integers
---     IO.Network.makeBrain (abs <$> arbitrarySizedFractional) (fmap (abs <$>) arbitrarySizedFractional) layerSizes
+--     IO.Network.makeLayers (abs <$> arbitrarySizedFractional) (fmap (abs <$>) arbitrarySizedFractional) layerSizes
 
 -- propertyTests :: TestTree
 -- propertyTests = testGroup "Network learns"
