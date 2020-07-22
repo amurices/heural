@@ -77,9 +77,9 @@ learn brain input desired = let
        brain allErrors staggeredActs
 
 learnMany :: [[Neuron]] -> [[Double]] -> [[Double]] -> [[Neuron]]
-learnMany brain images labels =
-  let twoTogether = zip images labels in
-    foldl' (\evolvingBrain (img, lab) -> learn evolvingBrain img lab) brain twoTogether
+learnMany brain inputs desired =
+  let twoTogether = zip inputs desired in
+    foldl' (\evolvingBrain (inp, des) -> learn evolvingBrain inp des) brain twoTogether
 
 -- For tests: 
 -- weightInputs [Activation 1.0 _, Activation 2.0 _] Neuron { bias = 0.0, inWeights = [2.0, 3.0] } ==> [2.0,6.0]

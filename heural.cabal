@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c7e4b5896c3c0bcec86ee62c60c78245b6c857f76260c4318f0a7c32246d7cba
+-- hash: bfcc8b059da4963b48e11a4e73391c290a5ac28ba72fddafacaec9f6d2ddea54
 
 name:           heural
 version:        0.1.0.0
@@ -77,6 +77,7 @@ test-suite heural-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Arbitraries
       MathsTest
       NetworkTest
       Paths_heural
