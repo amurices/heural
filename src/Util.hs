@@ -12,6 +12,7 @@ gauss scale gen = do
   x2 <- gen
   return $ scale * LM.boxMuller x1 x2
 
+
 nuColors :: ColorOptions
 nuColors = 
   ColorOptions {colorQuote = colorDullMagenta,

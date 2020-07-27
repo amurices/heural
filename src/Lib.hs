@@ -81,4 +81,4 @@ someFunc = do
         ind <- read <$> getLine
         let image' = imageToInput (images !! ind)
         putStrLn $ printf "%dth case is a %d:\n" ind (labels !! ind) ++ asciiImage 28 image'
-        nuTap (sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedBrain image' evolvedBrain) `seq` putStrLn "o"
+        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedBrain image' evolvedBrain

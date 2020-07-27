@@ -49,15 +49,16 @@ propertyTests :: TestTree
 propertyTests = testGroup "Network learns"
   [ QC.testProperty "learned brain should classify better no matter what" $
     \brain input desired ->
-        length input >= length (inWeights $ head $ head brain) && 
-        length desired >= length (last brain)
-        QC.==>
-        let 
-            acts        = (last . L.Network.feedBrain input) brain
-            err         = L.Network.errorLast acts desired
-            learned     = L.Network.learn brain input desired
-            actsLearned = (last . L.Network.feedBrain input) learned
-            errLearned  = L.Network.errorLast actsLearned desired
-            in
-                abs (foldl (+) 0.0 errLearned) < abs (foldl (+) 0.0 err)
+      not (null input) && not (null desired)
+      QC.==>
+      let 
+        input'      = if length input < length (inWeights $ head $ head brain) then concat (repeat input) else input
+        desired'    = if length desired < length (last brain) then concat (repeat desired) else desired
+        acts        = (last . L.Network.feedBrain input) brain
+        err         = L.Network.errorLast acts desired
+        learned     = L.Network.learn brain input desired
+        actsLearned = (last . L.Network.feedBrain input) learned
+        errLearned  = L.Network.errorLast actsLearned desired
+        in
+            abs (sum errLearned) < abs (sum err)
   ]

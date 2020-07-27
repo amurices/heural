@@ -23,15 +23,16 @@ sigmoid' x =
       s * (1 - s)
 
 activationFn :: (Floating a, Ord a) => a -> a
-activationFn = relu
+activationFn = sigmoid
 
 activationFn' :: (Floating a, Ord a) => a -> a
-activationFn' = relu'
+activationFn' = sigmoid'
 
 -- This is an implementation of the Box-Muller transform i think. I dunno if this plus
 -- the impure part is actually what makes it up :shrug: 
-boxMuller :: Floating a => a -> a -> a
-boxMuller x1 x2 = sqrt (-2 * log x1) * cos (2 * pi * x2)
+boxMuller ::  (RealFloat a) => a -> a -> a
+boxMuller x1 x2 = noNaN $ sqrt (-2 * log x1) * cos (2 * pi * x2)
+    where noNaN x = if isNaN x || isInfinite x then 1.0 else x
 
 -- This will be squared after which makes sqrt pointless, but it is what it is :actualshrug:
 vectorLength :: Floating a => [a] -> a

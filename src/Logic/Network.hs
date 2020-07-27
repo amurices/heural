@@ -73,7 +73,7 @@ learn brain input desired = let
   staggeredActs  = (flip Activation 0.0 <$> input) : allActivations
   in
     zipWith3 (\layer layerError prevLayerActs -> 
-               zipWith (learnNeuron 0.002 prevLayerActs) layer layerError)
+               zipWith (learnNeuron 0.2 prevLayerActs) layer layerError)
        brain allErrors staggeredActs
 
 learnMany :: [[Neuron]] -> [[Double]] -> [[Double]] -> [[Neuron]]
