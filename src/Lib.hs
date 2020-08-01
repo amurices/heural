@@ -15,6 +15,7 @@ import qualified Data.ByteString.Lazy          as B
 import           Data.List
 import           Util
 import           Text.Printf
+import           Logic.Maths
 
 splitEvery _ [] = []
 splitEvery n xs = as : splitEvery n bs 
@@ -74,11 +75,11 @@ someFunc = do
         outLayerSize = 10
     putStrLn $ printf "Network'll look like this: %d,_,_,...,_,%d\nWhat should be the sizes of middle layers?" inLayerSize outLayerSize
     layerSizes <- (++ [outLayerSize]) . (inLayerSize : ) . map read . words <$> getLine
-    brain <- makeLayers randomIO layerSizes
+    brain <- makeNetwork randomIO layerSizes
     let evolvedBrain = LN.learnMany brain (map imageToInput images) (map labelToDesired labels)
     forever $ do
         putStrLn $ "Mention a training case from 0 to " ++ show (numCases-1)
         ind <- read <$> getLine
         let image' = imageToInput (images !! ind)
         putStrLn $ printf "%dth case is a %d:\n" ind (labels !! ind) ++ asciiImage 28 image'
-        nuTap (sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedBrain image' evolvedBrain) `seq` putStrLn "o"
+        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedNetwork image' evolvedBrain
