@@ -23,8 +23,8 @@ layerWeightsAndBias :: IO Double -> Int -> Int -> IO (Unsized.Vector UVNeuronPla
 layerWeightsAndBias generator prevSize curSize  =
     Unsized.fromList <$> replicateM curSize (singleNeuronWeightsAndBias prevSize generator)
 
-makeLayers :: IO Double -> [Int] -> IO (Unsized.Vector (Unsized.Vector UVNeuronPlay))
-makeLayers generator sizes = Unsized.fromList . tail <$> zipWithM (layerWeightsAndBias generator) (1:sizes) sizes 
+makeNetwork :: IO Double -> [Int] -> IO (Unsized.Vector (Unsized.Vector UVNeuronPlay))
+makeNetwork generator sizes = Unsized.fromList . tail <$> zipWithM (layerWeightsAndBias generator) (1:sizes) sizes 
 
 getLayerSizes :: IO [Int]
 getLayerSizes = map read . words <$> getLine
@@ -32,5 +32,5 @@ getLayerSizes = map read . words <$> getLine
 someIOAction :: IO ()
 someIOAction = do
     putStrLn "Input brain structure"
-    brain <- getLayerSizes >>= makeLayers randomIO
+    brain <- getLayerSizes >>= makeNetwork randomIO
     print $ nuTap brain

@@ -37,8 +37,8 @@ smallLogicTests = testGroup "Small logic"
 
 bigLogicTests :: TestTree
 bigLogicTests = testGroup "Big, \"controller-like\" logic"
-  [ testCase "feedBrain returns correct result in last layer" $
-    (last . L.Network.feedBrain [1,1,1]) ourBrain @?= [Activation {activation = 0.998969150393322, weightedInput = 6.8763405746014925}, Activation {activation = 0.9997724097287007, weightedInput = 8.387735985182916}]
+  [ testCase "feedNetwork returns correct result in last layer" $
+    (last . L.Network.feedNetwork [1,1,1]) ourBrain @?= [Activation {activation = 0.998969150393322, weightedInput = 6.8763405746014925}, Activation {activation = 0.9997724097287007, weightedInput = 8.387735985182916}]
   ]
 
 {- Property based tests reveal some improvements that could be made:
@@ -49,15 +49,11 @@ propertyTests :: TestTree
 propertyTests = testGroup "Network learns"
   [ QC.testProperty "learned brain should classify better no matter what" $
     \brain input desired ->
-      not (null input) && not (null desired)
-      QC.==>
       let 
-        input'      = if length input < length (inWeights $ head $ head brain) then concat (repeat input) else input
-        desired'    = if length desired < length (last brain) then concat (repeat desired) else desired
-        acts        = (last . L.Network.feedBrain input) brain
+        acts        = (last . L.Network.feedNetwork input) brain
         err         = L.Network.errorLast acts desired
         learned     = L.Network.learn brain input desired
-        actsLearned = (last . L.Network.feedBrain input) learned
+        actsLearned = (last . L.Network.feedNetwork input) learned
         errLearned  = L.Network.errorLast actsLearned desired
         in
             abs (sum errLearned) < abs (sum err)
