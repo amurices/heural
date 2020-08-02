@@ -31,6 +31,6 @@ getLayerSizes = read <$> getLine
 
 someIOAction :: IO ()
 someIOAction = do
-    putStrLn "Input brain structure"
+    putStrLn "Input network structure"
     S.SomeSized singleLayer <- getLayerSizes >>= layerWeightsAndBias randomIO 3
     print $ nuTap singleLayer

@@ -31,6 +31,6 @@ getLayerSizes = map read . words <$> getLine
 
 someIOAction :: IO ()
 someIOAction = do
-    putStrLn "Input brain structure"
-    brain <- getLayerSizes >>= makeNetwork randomIO
-    print $ nuTap brain
+    putStrLn "Input network structure"
+    network <- getLayerSizes >>= makeNetwork randomIO
+    print $ nuTap network

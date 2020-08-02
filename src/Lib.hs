@@ -17,28 +17,24 @@ import           Util
 import           Text.Printf
 import           Logic.Maths
 
-splitEvery _ [] = []
-splitEvery n xs = as : splitEvery n bs 
-  where (as, bs) = splitAt n xs
-
 mnistLabelsMagicNumber :: B.ByteString
 mnistLabelsMagicNumber = B.pack [0, 0, 8, 1]
 
 mnistImagesMagicNumber :: B.ByteString
 mnistImagesMagicNumber = B.pack [0, 0, 8, 3]
 
-readMNISTLabels :: Int -> IO [Integer]
-readMNISTLabels subset = do
+readMNISTLabels :: FilePath -> Int -> IO [Integer]
+readMNISTLabels filepath subset = do
     labels <- decompress
-        <$> B.readFile "datasets/mnist/train-labels-idx1-ubyte.gz"
+        <$> B.readFile filepath
     unless (mnistLabelsMagicNumber `B.isPrefixOf` labels)
         $ error "wrong magic number; this isn't MNIST labels"
     pure . take subset . map fromIntegral . B.unpack . B.drop 8 $ labels
 
 -- Each list will have dimension0 * dimension1 elements
-readMNISTImages :: Int -> IO [[Integer]]
-readMNISTImages subset = do
-    images <- decompress <$> B.readFile "datasets/mnist/train-images-idx3-ubyte.gz"
+readMNISTImages :: FilePath -> Int -> IO [[Integer]]
+readMNISTImages filepath subset = do
+    images <- decompress <$> B.readFile filepath
     unless (mnistImagesMagicNumber `B.isPrefixOf` images)
         $ error "wrong magic number; this isn't MNIST images"
     let bytestringToInteger = B.foldl (\acc x -> acc * 256 + fromIntegral x) 0
@@ -67,19 +63,25 @@ imageToInput = map ((/ 256.0) . fromIntegral)
 
 someFunc :: IO ()
 someFunc = do
-    putStrLn "How many cases to test on?"
+    putStrLn "How many cases to train on?"
     numCases <- read <$> getLine
-    labels <- readMNISTLabels numCases
-    images <- readMNISTImages numCases
-    let inLayerSize  = length (head images) 
+    trainingLabels <- readMNISTLabels "datasets/mnist/train-labels-idx1-ubyte.gz" numCases
+    trainingImages <- readMNISTImages "datasets/mnist/train-images-idx3-ubyte.gz" numCases
+    testLabels <- readMNISTLabels "datasets/mnist/t10k-labels-idx1-ubyte.gz" 10000
+    testImages <- readMNISTImages "datasets/mnist/t10k-images-idx3-ubyte.gz" 10000
+    let inLayerSize  = length (head trainingImages) 
         outLayerSize = 10
     putStrLn $ printf "Network'll look like this: %d,_,_,...,_,%d\nWhat should be the sizes of middle layers?" inLayerSize outLayerSize
     layerSizes <- (++ [outLayerSize]) . (inLayerSize : ) . map read . words <$> getLine
-    brain <- makeNetwork randomIO layerSizes
-    let evolvedBrain = LN.learnMany brain (map imageToInput images) (map labelToDesired labels)
+    let eta = 0.002
+    network <- makeNetwork eta relu relu' randomIO layerSizes
+    let evolvedNetwork = LN.learnMany network (map imageToInput trainingImages) (map labelToDesired trainingLabels)
+
+    let accuracy = undefined -- TODO: Final touch on this example program for mnist is to show accuracy for given params
+
     forever $ do
-        putStrLn $ "Mention a training case from 0 to " ++ show (numCases-1)
+        putStrLn $ "Mention a test case from 0 to " ++ show 9999
         ind <- read <$> getLine
-        let image' = imageToInput (images !! ind)
-        putStrLn $ printf "%dth case is a %d:\n" ind (labels !! ind) ++ asciiImage 28 image'
-        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedNetwork image' evolvedBrain
+        let image' = imageToInput (testImages !! ind)
+        putStrLn $ printf "%dth case is a %d:\n" ind (testLabels !! ind) ++ asciiImage 28 image'
+        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedNetwork image' evolvedNetwork

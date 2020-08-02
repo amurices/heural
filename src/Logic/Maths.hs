@@ -1,6 +1,12 @@
 module Logic.Maths 
-       (activationFn,
-        activationFn',
+       (relu,
+        relu',
+        sigmoid,
+        sigmoid',
+        -- tanh is given by Prelude
+        tanh',
+        leakyRelu,
+        leakyRelu',
         quadratic',
         quadratic,
         vectorLength,
@@ -10,8 +16,16 @@ relu :: (Floating a, Ord a) => a -> a
 relu = max 0
 
 relu' :: (Floating a, Ord a) => a -> a
-relu' x | x < 0     = 0
-        | otherwise = 1
+relu' x | x > 0     = 1
+        | otherwise = 0
+
+leakyRelu :: (Floating a, Ord a) => a -> a
+leakyRelu x | x > 0     = x
+            | otherwise = x * 0.01
+
+leakyRelu' :: (Floating a, Ord a) => a -> a
+leakyRelu' x | x > 0     = 1
+             | otherwise = 0.01
 
 sigmoid :: (Floating a, Ord a) => a -> a
 sigmoid x = 1 / (1 + exp (-x))
@@ -22,11 +36,8 @@ sigmoid' x =
   let s   = sigmoid x in
       s * (1 - s)
 
-activationFn :: (Floating a, Ord a) => a -> a
-activationFn = sigmoid
-
-activationFn' :: (Floating a, Ord a) => a -> a
-activationFn' = sigmoid'
+tanh' :: (Floating a) => a -> a
+tanh' x = 1 / (1 + x*x)
 
 -- This is an implementation of the Box-Muller transform i think. I dunno if this plus
 -- the impure part is actually what makes it up :shrug: 
@@ -38,7 +49,7 @@ boxMuller x1 x2 = noNaN $ sqrt (-2 * log x1) * cos (2 * pi * x2)
 vectorLength :: Floating a => [a] -> a
 vectorLength = sqrt . sum . map (**2)
 
--- Activations here refer to the output of the brain
+-- Activations here refer to the output of the network
 quadratic :: Floating a => [a] -> [a] -> a
 quadratic activations = (**2) . vectorLength . zipWith (-) activations
 

@@ -12,19 +12,18 @@ makeLayer gen prevLayer currLayer = mapM gennedNeuron currLayer
   where gen'         = \_ -> gen -- This is to mapM over the input traversable.
         gennedNeuron = \_ -> Neuron <$> gen' undefined <*> mapM gen' prevLayer
 
-makeNetwork :: (Monad m) =>  m Double -> [Int] -> m [[Neuron]]
-makeNetwork gen ints =
-  tail <$> zipWithM (makeLayer (gauss 0.01 gen))
-                    (map (flip replicate undefined) (1:ints))
-                    (map (flip replicate undefined) ints)
-
--- makeNetwork :: (Monad m) => Double -> (Double -> Double) -> (Double -> Double) -> m Double -> [Int] -> m Network
--- makeNetwork eta actFn actFn' gen ints = do
---   randomNet <- tail <$> 
---                  zipWithM (makeLayer (gauss 0.01 gen))
---                           (map (flip replicate undefined) (1:ints))
---                           (map (flip replicate undefined) ints)
---   pure $ Network {eta = eta,
---                   activationFn = actFn,
---                   activationFn' = actFn',
---                   net = randomNet}
+makeNetwork :: (Monad m) => Double -> 
+                            (Double -> Double) -> 
+                            (Double -> Double) -> 
+                            m Double -> 
+                            [Int] -> 
+                            m Network
+makeNetwork eta actFn actFn' gen ints = do
+  randomNet <- tail <$> 
+                 zipWithM (makeLayer (gauss 0.01 gen))
+                          (map (flip replicate undefined) (1:ints))
+                          (map (flip replicate undefined) ints)
+  pure $ Network {eta = eta,
+                  activationFunction = actFn,
+                  activationFunction' = actFn',
+                  net = randomNet}

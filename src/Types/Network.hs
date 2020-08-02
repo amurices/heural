@@ -3,7 +3,7 @@
 module Types.Network (
   Neuron(..), 
   Activation(..),
-  Network(..),
+  Network(..)
   ) where
 
 data Neuron = Neuron {bias :: Double, inWeights :: [Double]}
@@ -17,6 +17,8 @@ data Network = Network {activationFunction :: (Double -> Double),
                         activationFunction' :: (Double -> Double),
                         eta :: Double,
                         net :: [[Neuron]]}
+instance Show Network where
+  show (Network _ _ _ network) = show network
 
 {- TODO: For when generalizing this to any traversable. P for Parametrized.
    Then the layer-fn below should work for generating this type.

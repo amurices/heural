@@ -1,5 +1,4 @@
-module Util 
-  (nuTap, gauss) where
+module Util where
 
 import Debug.Pretty.Simple
 import Text.Pretty.Simple.Internal.OutputPrinter
@@ -11,7 +10,6 @@ gauss scale gen = do
   x1 <- gen
   x2 <- gen
   return $ scale * LM.boxMuller x1 x2
-
 
 nuColors :: ColorOptions
 nuColors = 
@@ -27,3 +25,8 @@ nuTap x = pTraceShowOpt CheckColorTty
                         {outputOptionsIndentAmount = 2,
                          outputOptionsColorOptions = Just nuColors,
                          outputOptionsEscapeNonPrintable = False} x x `seq` x
+
+splitEvery :: Int -> [a] -> [[a]]
+splitEvery _ [] = []
+splitEvery n xs = as : splitEvery n bs 
+  where (as, bs) = splitAt n xs

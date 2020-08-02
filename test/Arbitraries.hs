@@ -8,15 +8,16 @@ import Test.Tasty
 import Test.Tasty.QuickCheck as QC
 import Test.Tasty.HUnit
 import Control.Monad
-import Util
+import Logic.Maths
 
-instance {-# OVERLAPPING #-} Arbitrary [[Neuron]] where
+instance Arbitrary Network where
   arbitrary = do
     layerSizes <- do
       firstElem <- QC.arbitrary
       secondPart <- QC.listOf1 QC.arbitrary
       pure $ map (succ . abs) (firstElem : secondPart) -- networks should be at least 2 long
-    makeNetwork (abs <$>  QC.arbitrary) layerSizes
+    positiveDouble <- ((+ 0.0002) . abs) <$> arbitrary
+    makeNetwork positiveDouble leakyRelu leakyRelu' (abs <$>  QC.arbitrary) layerSizes
 
 instance {-# OVERLAPPING #-} Arbitrary [Double] where
   arbitrary = do
