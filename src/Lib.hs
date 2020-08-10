@@ -71,11 +71,12 @@ someFunc = do
     testImages <- readMNISTImages "datasets/mnist/t10k-images-idx3-ubyte.gz" 10000
     let inLayerSize  = length (head trainingImages) 
         outLayerSize = 10
+        eta          = 0.002
+        batchSize    = 1
     putStrLn $ printf "Network'll look like this: %d,_,_,...,_,%d\nWhat should be the sizes of middle layers?" inLayerSize outLayerSize
     layerSizes <- (++ [outLayerSize]) . (inLayerSize : ) . map read . words <$> getLine
-    let eta = 0.002
     network <- makeNetwork eta relu relu' randomIO layerSizes
-    let evolvedNetwork = LN.learnMany network (map imageToInput trainingImages) (map labelToDesired trainingLabels)
+    let evolvedNetwork = LN.learnEpoch batchSize network (map imageToInput trainingImages) (map labelToDesired trainingLabels)
 
     let accuracy = undefined -- TODO: Final touch on this example program for mnist is to show accuracy for given params
 
@@ -84,4 +85,4 @@ someFunc = do
         ind <- read <$> getLine
         let image' = imageToInput (testImages !! ind)
         putStrLn $ printf "%dth case is a %d:\n" ind (testLabels !! ind) ++ asciiImage 28 image'
-        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedNetwork image' evolvedNetwork
+        print $ sortBy (\x y -> compare (snd y) (snd x))  $ zip [0..] $ map activation $ last $ LN.feedNetwork evolvedNetwork image'

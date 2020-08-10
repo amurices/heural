@@ -13,13 +13,26 @@ data Activation = Activation {activation :: Double,
                               weightedInput :: Double}
   deriving (Show, Eq)
 
+instance Num Activation where 
+  (Activation a b) + (Activation c d) = Activation (a + c) (b + d)
+  (Activation a b) * (Activation c d) = Activation (a * c) (b * d)
+  abs (Activation a b) = (Activation (abs a) (abs b))
+  signum a = undefined
+  fromInteger i = Activation (fromInteger i) 0.0
+  negate (Activation a b) = Activation (negate a) (negate b)
+
+instance Fractional Activation where
+  fromRational r = undefined
+  (Activation a b) / (Activation c d) = Activation (a / c) (b / d)
+
 data Network = Network {activationFunction :: (Double -> Double),
                         activationFunction' :: (Double -> Double),
                         eta :: Double,
                         net :: [[Neuron]]}
 instance Show Network where
   show (Network _ _ _ network) = show network
-
+instance Eq Network where
+  (Network _ _ _ network1) == (Network _ _ _ network2) = network1 == network2
 {- TODO: For when generalizing this to any traversable. P for Parametrized.
    Then the layer-fn below should work for generating this type.
 

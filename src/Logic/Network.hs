@@ -5,13 +5,14 @@ module Logic.Network
         feedNetwork,
         backpropagate,
         errorLast,
-        learn,
-        learnMany)
+        learnBatch,
+        learnEpoch)
        where
 
 import Data.List
 import Types.Network
 import Logic.Maths
+import Util
 
 weightInputs :: [Activation] -> Neuron -> Double
 weightInputs acts n = (bias n + ) . sum . zipWith (\a i -> activation a * i) acts $ ws
@@ -29,8 +30,8 @@ feedLayer :: (Double -> Double) -> [Activation] -> [Neuron] -> [Activation]
 feedLayer actFn inp = fmap (feedNeuron actFn inp)
 
 -- |Given a list of inputs, feeds them through a sequence of layers, returning each layer's activation
-feedNetwork :: [Double] -> Network -> [[Activation]]
-feedNetwork input network = tail . scanl' (feedLayer (activationFunction network)) input' $ net network
+feedNetwork :: Network -> [Double] -> [[Activation]]
+feedNetwork network input = tail . scanl' (feedLayer (activationFunction network)) input' $ net network
   where input' = (\x -> Activation {weightedInput = 0.0, activation = x}) <$> input
 
 hadamard :: [Double] -> [Double] -> [Double]
@@ -52,9 +53,9 @@ errorL actFn' errorsPlus1 neuronsPlus1 acts =
   firstThing `hadamard` secondThing
 
 -- |Given output error, activations and a network, return errors for all neurons
-backpropagate :: [Double] -> [[Activation]] -> Network -> [[Double]]
-backpropagate outputError activations network = let
-  staggeredActs   = tail $ reverse activations
+backpropagate :: Network -> [Double] -> [[Activation]] -> [[Double]]
+backpropagate network outputError activations = let
+  staggeredActs     = tail $ reverse activations
   actsAndNetworkRev = zip staggeredActs (reverse (net network))
   in  -- this has to be a "staggered" fold; errorL operates on acts of current layer, but neurons and errors of next layer
     foldl' (\acc (act, n) -> errorL (activationFunction' network) (head acc) n act : acc) [outputError] actsAndNetworkRev
@@ -65,21 +66,23 @@ learnNeuron eta acts (Neuron b iw) e = Neuron b' iw'
   where b'  = b - eta * e
         iw' = zipWith (\x y -> x - (eta * e * activation y)) iw acts
 
-learn :: Network -> [Double] -> [Double] -> Network
-learn network input desired = let
-  allActivations = feedNetwork input network
-  outputError    = errorLast (activationFunction' network) (last allActivations) desired 
-  allErrors      = backpropagate outputError allActivations network
-  staggeredActs  = (flip Activation 0.0 <$> input) : allActivations
+learnBatch :: Network -> [[Double]] -> [[Double]] -> Network
+learnBatch network input desired = let
+  allActivations   = map (feedNetwork network) input
+  outputErrors     = zipWith (errorLast (activationFunction' network)) (map last allActivations) desired 
+  avgErrors        = nuTap $ avgMatrix $ zipWith (backpropagate network) outputErrors allActivations
+  avgStaggeredActs = nuTap $ avgMatrix $ zipWith (\eachInput activations -> map (flip Activation 1.0) eachInput : activations) input allActivations
   in
     network {net = zipWith3 (\layer layerError prevLayerActs -> 
-                            zipWith (learnNeuron (eta network) prevLayerActs) layer layerError)
-                 (net network) allErrors staggeredActs}
+                              zipWith (learnNeuron (eta network) prevLayerActs) layer layerError)
+                 (net network) avgErrors avgStaggeredActs}
+    where avgMatrix allMatrices = foldl1 (\acc matrix -> zipWith (zipWith (\a b -> a / l + b / l)) acc matrix) allMatrices
+            where l = fromIntegral (length allMatrices)
 
-learnMany ::  Network -> [[Double]] -> [[Double]] -> Network
-learnMany network inputs desired =
-  let twoTogether = zip inputs desired in
-    foldl' (\evolvingNetwork (inp, des) -> learn evolvingNetwork inp des) network twoTogether
+learnEpoch :: Int -> Network -> [[Double]] -> [[Double]] -> Network
+learnEpoch batchSize network inputs desired =
+  let twoTogether = zip (splitEvery batchSize inputs) (splitEvery batchSize desired) in
+    foldl' (\evolvingNetwork (inp, des) -> learnBatch evolvingNetwork inp des) network twoTogether
 
 -- For tests: 
 -- weightInputs [Activation 1.0 _, Activation 2.0 _] Neuron { bias = 0.0, inWeights = [2.0, 3.0] } ==> [2.0,6.0]

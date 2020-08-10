@@ -17,7 +17,7 @@ instance Arbitrary Network where
       secondPart <- QC.listOf1 QC.arbitrary
       pure $ map (succ . abs) (firstElem : secondPart) -- networks should be at least 2 long
     positiveDouble <- ((+ 0.0002) . abs) <$> arbitrary
-    makeNetwork positiveDouble leakyRelu leakyRelu' (abs <$>  QC.arbitrary) layerSizes
+    makeNetwork positiveDouble sigmoid sigmoid' (abs <$>  QC.arbitrary) layerSizes
 
 instance {-# OVERLAPPING #-} Arbitrary [Double] where
   arbitrary = do
